@@ -11,6 +11,11 @@
         addDialog: document.querySelector('.dialog-container')
     };
 
+    // Configuracion de localforage para el almacenamiento
+    localforage.config({
+        driver: localforage.IndexedDB,
+        name: 'MetroApp-Taller1'
+    });
 
     /*****************************************************************************
      *
@@ -179,9 +184,37 @@
      *   Instead, check out IDB (https://www.npmjs.com/package/idb) or
      *   SimpleDB (https://gist.github.com/inexorabletash/c8069c042b734519680c)
      ************************************************************************/
+    // Guardar las timetables seleccionadas
+    app.saveSelectedTimetables = function() {
+        var timetables = JSON.stringify(app.selectedTimetables);
+        localforage.setItem('timetables', timetables).then(function(value){
+            console.log('Se guardaron las Timetables seleccionadas');
+        });
+    };
+    
+    app.defaultTimetables = function() {
+        app.getSchedule('metros/1/bastille/A', 'Bastille, Direction La Défense');
+        app.selectedTimetables = [
+                {key: initialStationTimetable.key, label: initialStationTimetable.label}
+                ];
+        app.saveSelectedTimetables();
+    };
+    
+    localforage.getItem('timetables').then(function(value) {
+        
+        app.selectedTimetables = value;
+        
+        if (app.selectedTimetables) {
+            app.selectedTimetables = JSON.parse(app.selectedTimetables);
+            app.selectedTimetables.forEach(function(timetable) {
+                app.getSchedule( timetable.key, timetable.label);
+            });
+        } else {
+            app.defaultTimetables();
+        }
+    }).catch(function (err) {
+        console.log(err);
+        app.defaultTimetables();
+    });
 
-    app.getSchedule('metros/1/bastille/A', 'Bastille, Direction La Défense');
-    app.selectedTimetables = [
-        {key: initialStationTimetable.key, label: initialStationTimetable.label}
-    ];
 })();
