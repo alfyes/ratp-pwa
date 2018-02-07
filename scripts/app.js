@@ -121,6 +121,25 @@
     app.getSchedule = function (key, label) {
         var url = 'https://api-ratp.pierre-grimaud.fr/v3/schedules/' + key;
 
+        if ('caches' in window) {
+            /*
+             * Se toma de cache los ultimos datos del metro, mientras
+             * se realiza la consulta por los mas actuales.
+             */
+            caches.match(url).then(function(response) {
+                if (response) {
+                    response.json().then(function updateFromCache(json) {
+                        var result = {};
+                        result.schedules= json.result.schedules;
+                        result.key = key;
+                        result.label = label;
+                        result.created = json._metadata.date;
+                        app.updateTimetableCard(result);
+                    });
+                }
+            });
+        }
+        
         var request = new XMLHttpRequest();
         request.onreadystatechange = function () {
             if (request.readyState === XMLHttpRequest.DONE) {
