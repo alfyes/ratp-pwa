@@ -8,7 +8,8 @@
         spinner: document.querySelector('.loader'),
         cardTemplate: document.querySelector('.cardTemplate'),
         container: document.querySelector('.main'),
-        addDialog: document.querySelector('.dialog-container')
+        addDialog: document.querySelector('.dialog-container'),
+        isFirstResponse: true
     };
 
     // Configuracion de localforage para el almacenamiento
@@ -105,6 +106,7 @@
         }
 
         if (app.isLoading) {
+            window.cardLoadTime = performance.now();
             app.spinner.setAttribute('hidden', true);
             app.container.removeAttribute('hidden');
             app.isLoading = false;
@@ -144,6 +146,13 @@
         request.onreadystatechange = function () {
             if (request.readyState === XMLHttpRequest.DONE) {
                 if (request.status === 200) {
+
+                    if(app.isFirstResponse){
+                        window.apiResponseTime = performance.now();
+                        app.isFirstResponse = false;
+                    }
+                   
+                    
                     var response = JSON.parse(request.response);
                     var result = {};
                     result.key = key;

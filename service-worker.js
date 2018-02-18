@@ -1,5 +1,5 @@
 var dataCacheName = 'DataMetro-v1';
-var cacheName = 'MetroApp-sf9';
+var cacheName = 'MetroApp-sf11';
 var filesToCache = [
     '/',
     '/index.html',
